@@ -13,7 +13,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ✅ Debug (optional)
+// ✅ Debug
 console.log("MONGO_URI exists:", !!process.env.MONGO_URI);
 
 // ✅ MongoDB Connection
@@ -23,11 +23,10 @@ const connectDB = async () => {
 
     await mongoose.connect(process.env.MONGO_URI, {
       serverSelectionTimeoutMS: 5000,
-      family: 4
+      family: 4,
     });
 
     console.log("MongoDB Connected ✅");
-
   } catch (err) {
     console.error("MongoDB Connection Error ❌", err);
     process.exit(1);
@@ -41,7 +40,7 @@ const contactSchema = new mongoose.Schema(
   {
     name: String,
     email: String,
-    message: String
+    message: String,
   },
   { timestamps: true }
 );
@@ -50,18 +49,18 @@ const Contact = mongoose.model("Contact", contactSchema);
 
 // ================= ROUTES =================
 
-// ✅ ROOT ROUTE (IMPORTANT)
+// ✅ ROOT ROUTE
 app.get("/", (req, res) => {
   res.status(200).send("Backend running 🚀");
 });
 
-// ✅ TEST ROUTE (for debugging)
+// ✅ TEST ROUTE
 app.get("/test", (req, res) => {
   res.status(200).send("Test route working ✅");
 });
 
-// ✅ CONTACT ROUTE
-app.post("/contact", async (req, res) => {
+// ✅ CONTACT ROUTE (FIXED)
+app.post("/api/contact", async (req, res) => {
   try {
     const { name, email, message } = req.body;
 
@@ -73,18 +72,17 @@ app.post("/contact", async (req, res) => {
     await newContact.save();
 
     res.status(200).json({ message: "Data saved successfully ✅" });
-
   } catch (error) {
     console.error("Save Error ❌", error);
     res.status(500).json({ error: "Error saving data ❌" });
   }
 });
 
-// ❗ 404 HANDLER (MUST BE LAST)
+// ❗ 404 HANDLER
 app.use((req, res) => {
   res.status(404).json({
     message: `Route ${req.method}:${req.originalUrl} not found`,
-    error: "Not Found"
+    error: "Not Found",
   });
 });
 
